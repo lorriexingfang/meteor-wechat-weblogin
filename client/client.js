@@ -1,24 +1,21 @@
 const serverUrl = "http://127.0.0.1";
 
 if(Meteor.isClient) {
-    //Router.route('/',function(){
-    //    this.render('Home', {data: {title: 'Home'}});
-    //});
     Router.configure({
-  	// the default layout
-  		layoutTemplate: 'mainNav'
+  		  layoutTemplate: 'mainNav'
 	  });
 	
     Router.route('/', function () {
-  		this.render('firstPage');
-  		this.layout('mainNav');
+    		this.render('firstPage');
+    		this.layout('mainNav');
 	  });
  
 	  Router.route('/second', function () {
-  		this.render('secondPage');
-  		this.layout('mainSide');
+    		this.render('secondPage');
+    		this.layout('mainSide');
 	  });
 
+/* This is for using client side sdk code. To use it, pls put it in Meteor.startup() function
 
     var config = {
       "appId": "wxfb9fe9700108fe06",
@@ -58,7 +55,7 @@ if(Meteor.isClient) {
       },
       debug: true
     };
-/*
+
     var getData = {
        data: {
           "url": serverUrl//"http://localhost"
@@ -104,30 +101,31 @@ if(Meteor.isClient) {
 */
     Template.firstPage.events({
         'click #login': function (e,t) {
-          console.log("click wechat login");
-          var curOpenId = localStorage.getItem("existOpenId");
-          if (curOpenId && curOpenId != null) {
-              console.log("it exists");
-              Meteor.call('getOathCache', {
-                openid: curOpenId
+            console.log("click wechat login");
+            var curOpenId = localStorage.getItem("existOpenId");
+
+            if (curOpenId && curOpenId != null) {
+                console.log("it exists");
+                Meteor.call('getOathCache', {
+                    openid: curOpenId
                 }, (err, res) => {
-                  if (err) {
-                      console.log(err);
-                  } else {
-                      console.log("return val is: ", res);
-                      Router.go("/")
-                  }
-              });
-          } else {
-              Meteor.call('getOath', (err, res) => {
-                  if (err) {
-                      console.log(err);
-                  } else {
-                      console.log("return val is: ", res);
-                      window.location.href = res;
-                  }
-              });
-          }
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("return val is: ", res);
+                        Router.go("/")
+                    }
+                });
+            } else {
+                Meteor.call('getOath', (err, res) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log("return val is: ", res);
+                        window.location.href = res;
+                    }
+                });
+            }
         }
     })    
 }
