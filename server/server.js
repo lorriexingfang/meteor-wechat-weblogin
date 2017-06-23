@@ -74,31 +74,32 @@ if(Meteor.isServer) {
     })
 
     Meteor.methods({
+        /*Method call for get signature*/
+        /*
         getSignature: function(data) {
           this.unblock();
           return Meteor.wrapAsync(function(callback) {
               wx.jssdk.getSignature(data.url).then((result) => {
                   console.log('OK', result);
-                  //res.json(data);
                   callback && callback(null, result);
-                  //callback(result;
               }, (reason) => {
                   console.error(reason);
-                  //res.json(reason);
                   callback && callback(null, result);
               });
           })();
         },
+        */
         getOathCache: function(data) {
             this.unblock();
             return Meteor.wrapAsync(function(callback) {
+                //wx.oauth.getUserInfo(null, "1234") // for testing openid expires purpose
                 wx.oauth.getUserInfo(null, data.openid)
                 .then(function(userProfile) {
                     console.log(JSON.stringify(userProfile));
                     callback && callback(null, userProfile);
-                }).catch(() => {
+                }).catch(reason => {
                     //need to get new code
-                    console.log("openid is expired");
+                    console.log("openid is expired: " + reason);
                     callback && callback(null, "newcode");
                 });
             })();

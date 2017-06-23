@@ -61,7 +61,7 @@ if(Meteor.isClient) {
           "url": serverUrl//"http://localhost"
        }
     }
-
+    //use ajax to call local API for getting signature
     $.ajax({
       type: 'GET',
       url: 'http://127.0.0.1/restapi/getSignature',
@@ -82,6 +82,7 @@ if(Meteor.isClient) {
 */
 
 /*
+    //Call Method call for getting signature
     Meteor.call('getSignature', {
       url: 'http://127.0.0.1'
     }, (err, res) => {
@@ -99,24 +100,11 @@ if(Meteor.isClient) {
       }
     });
 */
+
+
     Template.firstPage.events({
         'click #login': function (e,t) {
-            console.log("click wechat login");
-            var curOpenId = localStorage.getItem("existOpenId");
-
-            if (curOpenId && curOpenId != null) {
-                console.log("it exists");
-                Meteor.call('getOathCache', {
-                    openid: curOpenId
-                }, (err, res) => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log("return val is: ", res);
-                        Router.go("/")
-                    }
-                });
-            } else {
+            function getNewCode() {
                 Meteor.call('getOath', (err, res) => {
                     if (err) {
                         console.log(err);
@@ -125,6 +113,30 @@ if(Meteor.isClient) {
                         window.location.href = res;
                     }
                 });
+            }
+
+            console.log("click wechat login");
+            var curOpenId = localStorage.getItem("existOpenId");
+
+            if (curOpenId && curOpenId !== null) { // check if openid exists
+                console.log("it exists");
+                Meteor.call('getOathCache', {
+                    openid: curOpenId
+                }, (err, res) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        if (res !== "newcode") { // if openid is not expired
+                            console.log("return val is: ", res);
+                            Router.go("/")
+                        }
+                        else {  // if openid expires, get a new one
+                            getNewCode();
+                        }
+                    }
+                });
+            } else {  // if not, get a new code
+                        getNewCode();
             }
         }
     })    
