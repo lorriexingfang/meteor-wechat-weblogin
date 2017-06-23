@@ -1,6 +1,3 @@
-//import { TAPi18n } from 'meteor/tap:i18n';
-//import { HTTP } from 'meteor/http'
-//var http = require('http');
 const serverUrl = "http://127.0.0.1";
 
 if(Meteor.isClient) {
@@ -22,11 +19,6 @@ if(Meteor.isClient) {
   		this.layout('mainSide');
 	  });
 
-    var getData = {
-       data: {
-          "url": serverUrl//"http://localhost"
-       }
-    }
 
     var config = {
       "appId": "wxfb9fe9700108fe06",
@@ -66,6 +58,12 @@ if(Meteor.isClient) {
       },
       debug: true
     };
+/*
+    var getData = {
+       data: {
+          "url": serverUrl//"http://localhost"
+       }
+    }
 
     $.ajax({
       type: 'GET',
@@ -84,9 +82,10 @@ if(Meteor.isClient) {
         window.wechatObj = new WechatJSSDK(config); 
       }
     });
+*/
 
-
-  Meteor.call('getSignature', {
+/*
+    Meteor.call('getSignature', {
       url: 'http://127.0.0.1'
     }, (err, res) => {
       if (err) {
@@ -94,22 +93,41 @@ if(Meteor.isClient) {
       } else {
         // success!
         console.log("return val is: ", JSON.stringify(res));
+        //localStorage.setItem("test_signature", JSON.stringify(res.signature));        
+        config.nonceStr = res.nonceStr;
+        config.signature = res.signature;
+        config.timestamp = res.timestamp;
+        config.jsApiList = ['hideMenuItems', 'onMenuShareTimeline', 'chooseCard', 'addCard', 'openCard'];
+        window.wechatObj = new WechatJSSDK(config); 
       }
     });
-
+*/
     Template.firstPage.events({
         'click #login': function (e,t) {
           console.log("click wechat login");
-          Meteor.call('getOath', {
-              }, (err, res) => {
-                if (err) {
-                  console.log(err);
-                } else {
-                  // success!
-                  console.log("return val is: ", res);
-                  window.location.href = res;
-                }
-          });
+          var curOpenId = localStorage.getItem("existOpenId");
+          if (curOpenId && curOpenId != null) {
+              console.log("it exists");
+              Meteor.call('getOathCache', {
+                openid: curOpenId
+                }, (err, res) => {
+                  if (err) {
+                      console.log(err);
+                  } else {
+                      console.log("return val is: ", res);
+                      Router.go("/")
+                  }
+              });
+          } else {
+              Meteor.call('getOath', (err, res) => {
+                  if (err) {
+                      console.log(err);
+                  } else {
+                      console.log("return val is: ", res);
+                      window.location.href = res;
+                  }
+              });
+          }
         }
     })    
 }
